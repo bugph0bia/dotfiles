@@ -60,3 +60,8 @@ VS Code 設定
     </script>
     <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"></script>
     ```
+
+注意点：  
+バックスラッシュのエスケープがうまく機能しないことがある。  
+Markdown、MathJax の順にレンダリングが行われるため、Markdownで先にエスケープ処理されてしまうため。Markdownで処理されなかった文字はMathJaxで処理される。  
+例えば、`\\` は `\\\\` と書かなければ MathJax で改行と見なされないが、`\sum` はそのまま処理される。
