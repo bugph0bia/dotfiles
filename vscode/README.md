@@ -26,6 +26,37 @@ VS Code 設定
 4. 拡張機能の外部参照ファイルを配置する。
     1. `extention_files` フォルダを `C:\Tools\_setting\vscode` として配置する。
 5. その他、拡張機能ごとに必要な作業を行う。
-    - taichi.vscode-textlint
-        1. Node.js をインストールする。
-        2. `C:\Tools\_setting\vscode\taichi.vscode-textlint` に移動し、`textlint-install.bat` を実行して、textlint をインストールする。
+
+
+拡張機能ごとに必要な作業
+------------------------
+
+### taichi.vscode-textlint
+#### インストール
+1. Node.js をインストールする。
+2. `C:\Tools\_setting\vscode\taichi.vscode-textlint` に移動し、`textlint-install.bat` を実行して、textlint をインストールする。
+
+### yzane.markdown-pdf
+#### MathJaxによる数式レンダリング対応
+1. コマンドパレットで拡張機能フォルダを開く（Extentions: Open Extensions Folder）
+2. `<拡張機能フォルダ>\yzane.markdown-pdf-x.x.x\template\template.html` を編集し、`</head>` の直前に下記コードを追加する。
+    ```html
+    <!-- Mathjax による数式対応 -->
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({
+            tex2jax:{
+                inlineMath: [['\$','\$'],['\\(','\\)']],
+                processEscapes: true
+            },
+            CommonHTML: {
+                matchFontHeight: false
+            }
+        });
+        // 数式を左寄せ
+        MathJax.Hub.Config({
+            displayAlign: "left",
+            displayIndent: "2em"
+        });
+    </script>
+    <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+    ```
