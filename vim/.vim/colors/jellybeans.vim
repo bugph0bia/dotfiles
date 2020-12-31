@@ -13,16 +13,29 @@
 " URL:          github.com/nanotech/jellybeans.vim
 " Scripts URL:  vim.org/scripts/script.php?script_id=2555
 " Maintainer:   NanoTech (nanotech.nanotechcorp.net)
-" Version:      1.6~git
-" Last Change:  January 15th, 2012
+" Version:      1.7
+" Last Change:  June 21st, 2019
 " License:      MIT
-" Contributors: Daniel Herbert (pocketninja)
-"               Henry So, Jr. <henryso@panix.com>
+" Contributors: Andrew Wong (w0ng)
+"               Benjamin R. Haskell (benizi)
+"               Brian Marshall (bmars)
+"               Daniel Herbert (pocketninja)
 "               David Liang <bmdavll at gmail dot com>
+"               Filipe Silva (ninrod)
+"               Henry So, Jr. <henryso@panix.com>
+"               Ihor Kalnytskyi (ikalnytskyi)
+"               Joe Doherty (docapotamus)
+"               Karl Litterfeldt (Litterfeldt)
+"               Keith Pitt (keithpitt)
+"               Mike Schreifels (schreifels)
+"               Philipp Rustemeier (12foo)
+"               Rafael Bicalho (rbika)
 "               Rich Healey (richo)
-"               Andrew Wong (w0ng)
+"               Siwen Yu (yusiwen)
+"               Tim Willis (willist)
+"               Tom McLaughlin (tmcoma)
 "
-" Copyright (c) 2009-2012 NanoTech
+" Copyright (c) 2009-2019 NanoTech
 "
 " Permission is hereby granted, free of charge, to any per‐
 " son obtaining a copy of this software and associated doc‐
@@ -57,68 +70,87 @@ endif
 
 let colors_name = "jellybeans"
 
-if has("gui_running") || &t_Co == 88 || &t_Co == 256
+if has("gui_running") || (has('termguicolors') && &termguicolors)
+  let s:true_color = 1
+else
+  let s:true_color = 0
+endif
+
+if s:true_color || &t_Co >= 88
   let s:low_color = 0
 else
   let s:low_color = 1
 endif
 
 " Configuration Variables:
-" - g:jellybeans_overrides
-" - g:jellybeans_use_lowcolor_black
-" - g:jellybeans_use_term_background_color
-" - g:jellybeans_use_term_italics
+" - g:jellybeans_overrides          (default = {})
+" - g:jellybeans_use_lowcolor_black (default = 0)
+" - g:jellybeans_use_gui_italics    (default = 1)
+" - g:jellybeans_use_term_italics   (default = 0)
 
 let s:background_color = "151515"
 
+if exists("g:jellybeans_overrides")
+  let s:overrides = g:jellybeans_overrides
+else
+  let s:overrides = {}
+endif
+
 " Backwards compatibility
-if exists("g:jellybeans_background_color") || exists("g:jellybeans_background_color_256")
-  if !exists("g:jellybeans_overrides")
-    let g:jellybeans_overrides = {}
-  endif
-  if !has_key(g:jellybeans_overrides, "background")
-    let g:jellybeans_overrides["background"] = {}
+if exists("g:jellybeans_background_color")
+  \ || exists("g:jellybeans_background_color_256")
+  \ || exists("g:jellybeans_use_term_background_color")
+
+  let s:overrides = deepcopy(s:overrides)
+
+  if !has_key(s:overrides, "background")
+    let s:overrides["background"] = {}
   endif
 
   if exists("g:jellybeans_background_color")
-    let g:jellybeans_overrides["background"]["guibg"] = g:jellybeans_background_color
+    let s:overrides["background"]["guibg"] = g:jellybeans_background_color
   endif
 
   if exists("g:jellybeans_background_color_256")
-    let g:jellybeans_overrides["background"]["256ctermbg"] = g:jellybeans_background_color_256
+    let s:overrides["background"]["256ctermbg"] = g:jellybeans_background_color_256
+  endif
+
+  if exists("g:jellybeans_use_term_background_color")
+    \ && g:jellybeans_use_term_background_color
+    let s:overrides["background"]["ctermbg"] = "NONE"
+    let s:overrides["background"]["256ctermbg"] = "NONE"
   endif
 endif
 
-" Ensure that g:jellybeans_use_term_background_color = 0 works with overrides
-if exists("g:jellybeans_overrides")
-  \ && has_key(g:jellybeans_overrides, "background")
-  \ && has_key(g:jellybeans_overrides["background"], "guibg")
-  let s:background_color = g:jellybeans_overrides["background"]["guibg"]
-endif
-
-if !exists("g:jellybeans_use_lowcolor_black") || g:jellybeans_use_lowcolor_black
+if exists("g:jellybeans_use_lowcolor_black") && g:jellybeans_use_lowcolor_black
   let s:termBlack = "Black"
 else
   let s:termBlack = "Grey"
 endif
 
-if !exists("g:jellybeans_use_term_background_color")
-  " OS X's Terminal.app and iTerm apply transparency to all
-  " backgrounds. Other terminals tend to only apply transparency
-  " to the default unhighlighted background.
-  "
-  " has("mac") only detects MacVim, not Apple's /usr/bin/vim.
-  " We could check system("uname"), but then we're calling
-  " external programs from a colorscheme.
-  let g:jellybeans_use_term_background_color = has("mac")
-end
+" When `termguicolors` is set, Vim[^1] ignores `hi Normal guibg=NONE`
+" after Normal's `guibg` is already set to a color. See:
+"
+" - https://github.com/vim/vim/issues/981
+" - https://github.com/nanotech/jellybeans.vim/issues/64
+"
+" To work around this, ensure we don't set the default background
+" color before an override changes it to `NONE` by ensuring that the
+" background color isn't set to a value different from its override.
+"
+" [^1]: Tested on 8.0.567. Does not apply to Neovim.
+"
+if has_key(s:overrides, "background") && has_key(s:overrides["background"], "guibg")
+    let s:background_color = s:overrides["background"]["guibg"]
+endif
 
 " Color approximation functions by Henry So, Jr. and David Liang {{{
 " Added to jellybeans.vim by Daniel Herbert
 
-" returns an approximate grey index for the given grey level
-fun! s:grey_number(x)
-  if &t_Co == 88
+if &t_Co == 88
+
+  " returns an approximate grey index for the given grey level
+  fun! s:grey_number(x)
     if a:x < 23
       return 0
     elseif a:x < 69
@@ -140,24 +172,10 @@ fun! s:grey_number(x)
     else
       return 9
     endif
-  else
-    if a:x < 14
-      return 0
-    else
-      let l:n = (a:x - 8) / 10
-      let l:m = (a:x - 8) % 10
-      if l:m < 5
-        return l:n
-      else
-        return l:n + 1
-      endif
-    endif
-  endif
-endfun
+  endfun
 
-" returns the actual grey level represented by the grey index
-fun! s:grey_level(n)
-  if &t_Co == 88
+  " returns the actual grey level represented by the grey index
+  fun! s:grey_level(n)
     if a:n == 0
       return 0
     elseif a:n == 1
@@ -179,18 +197,10 @@ fun! s:grey_level(n)
     else
       return 255
     endif
-  else
-    if a:n == 0
-      return 0
-    else
-      return 8 + (a:n * 10)
-    endif
-  endif
-endfun
+  endfun
 
-" returns the palette index for the given grey index
-fun! s:grey_color(n)
-  if &t_Co == 88
+  " returns the palette index for the given grey index
+  fun! s:grey_color(n)
     if a:n == 0
       return 16
     elseif a:n == 9
@@ -198,20 +208,10 @@ fun! s:grey_color(n)
     else
       return 79 + a:n
     endif
-  else
-    if a:n == 0
-      return 16
-    elseif a:n == 25
-      return 231
-    else
-      return 231 + a:n
-    endif
-  endif
-endfun
+  endfun
 
-" returns an approximate color index for the given color level
-fun! s:rgb_number(x)
-  if &t_Co == 88
+  " returns an approximate color index for the given color level
+  fun! s:rgb_number(x)
     if a:x < 69
       return 0
     elseif a:x < 172
@@ -221,7 +221,65 @@ fun! s:rgb_number(x)
     else
       return 3
     endif
-  else
+  endfun
+
+  " returns the actual color level for the given color index
+  fun! s:rgb_level(n)
+    if a:n == 0
+      return 0
+    elseif a:n == 1
+      return 139
+    elseif a:n == 2
+      return 205
+    else
+      return 255
+    endif
+  endfun
+
+  " returns the palette index for the given R/G/B color indices
+  fun! s:rgb_color(x, y, z)
+    return 16 + (a:x * 16) + (a:y * 4) + a:z
+  endfun
+
+else " assuming &t_Co == 256
+
+  " returns an approximate grey index for the given grey level
+  fun! s:grey_number(x)
+    if a:x < 14
+      return 0
+    else
+      let l:n = (a:x - 8) / 10
+      let l:m = (a:x - 8) % 10
+      if l:m < 5
+        return l:n
+      else
+        return l:n + 1
+      endif
+    endif
+  endfun
+
+  " returns the actual grey level represented by the grey index
+  fun! s:grey_level(n)
+    if a:n == 0
+      return 0
+    else
+      return 8 + (a:n * 10)
+    endif
+  endfun
+
+  " returns the palette index for the given grey index
+  fun! s:grey_color(n)
+    if a:n == 0
+      return 16
+    elseif a:n == 25
+      return 231
+    else
+      return 231 + a:n
+    endif
+  endfun
+
+  " returns an approximate color index for the given color level
+  fun! s:rgb_number(x)
     if a:x < 75
       return 0
     else
@@ -233,44 +291,29 @@ fun! s:rgb_number(x)
         return l:n + 1
       endif
     endif
-  endif
-endfun
+  endfun
 
-" returns the actual color level for the given color index
-fun! s:rgb_level(n)
-  if &t_Co == 88
-    if a:n == 0
-      return 0
-    elseif a:n == 1
-      return 139
-    elseif a:n == 2
-      return 205
-    else
-      return 255
-    endif
-  else
+  " returns the actual color level for the given color index
+  fun! s:rgb_level(n)
     if a:n == 0
       return 0
     else
       return 55 + (a:n * 40)
     endif
-  endif
-endfun
+  endfun
 
-" returns the palette index for the given R/G/B color indices
-fun! s:rgb_color(x, y, z)
-  if &t_Co == 88
-    return 16 + (a:x * 16) + (a:y * 4) + a:z
-  else
+  " returns the palette index for the given R/G/B color indices
+  fun! s:rgb_color(x, y, z)
     return 16 + (a:x * 36) + (a:y * 6) + a:z
-  endif
-endfun
+  endfun
+
+endif
 
 " returns the palette index to approximate the given R/G/B color levels
 fun! s:color(r, g, b)
   " map greys directly (see xterm's 256colres.pl)
   if &t_Co == 256 && a:r == a:g && a:g == a:b && a:r > 3 && a:r < 243
-    return float2nr(round(a:r - 8) / 10.0) + 232
+    return (a:r - 8) / 10 + 232
   endif
 
   " get the closest grey
@@ -306,89 +349,119 @@ fun! s:color(r, g, b)
   endif
 endfun
 
+fun! s:is_empty_or_none(str)
+  return empty(a:str) || a:str ==? "NONE"
+endfun
+
 " returns the palette index to approximate the 'rrggbb' hex string
 fun! s:rgb(rgb)
+  if s:is_empty_or_none(a:rgb)
+    return "NONE"
+  endif
   let l:r = ("0x" . strpart(a:rgb, 0, 2)) + 0
   let l:g = ("0x" . strpart(a:rgb, 2, 2)) + 0
   let l:b = ("0x" . strpart(a:rgb, 4, 2)) + 0
   return s:color(l:r, l:g, l:b)
 endfun
 
+fun! s:prefix_highlight_value_with(prefix, color)
+  if s:is_empty_or_none(a:color)
+    return "NONE"
+  else
+    return a:prefix . a:color
+  endif
+endfun
+
+fun! s:remove_italic_attr(attr)
+  let l:attr = join(filter(split(a:attr, ","), "v:val !=? 'italic'"), ",")
+  if empty(l:attr)
+    let l:attr = "NONE"
+  endif
+  return l:attr
+endfun
+
 " sets the highlighting for the given group
 fun! s:X(group, fg, bg, attr, lcfg, lcbg)
   if s:low_color
-    let l:fge = empty(a:lcfg)
-    let l:bge = empty(a:lcbg)
-
-    if !l:fge && !l:bge
-      exec "hi ".a:group." ctermfg=".a:lcfg." ctermbg=".a:lcbg
-    elseif !l:fge && l:bge
-      exec "hi ".a:group." ctermfg=".a:lcfg." ctermbg=NONE"
-    elseif l:fge && !l:bge
-      exec "hi ".a:group." ctermfg=NONE ctermbg=".a:lcbg
-    endif
+    let l:cmd = "hi ".a:group.
+    \ " ctermfg=".s:prefix_highlight_value_with("", a:lcfg).
+    \ " ctermbg=".s:prefix_highlight_value_with("", a:lcbg)
   else
-    let l:fge = empty(a:fg)
-    let l:bge = empty(a:bg)
-
-    if !g:jellybeans_use_term_background_color && a:bg == s:background_color
-      let l:ctermbg = 'NONE'
-    else
-      let l:ctermbg = s:rgb(a:bg)
-    endif
-
-    if !l:fge && !l:bge
-      exec "hi ".a:group." guifg=#".a:fg." guibg=#".a:bg." ctermfg=".s:rgb(a:fg)." ctermbg=".l:ctermbg
-    elseif !l:fge && l:bge
-      exec "hi ".a:group." guifg=#".a:fg." guibg=NONE ctermfg=".s:rgb(a:fg)." ctermbg=NONE"
-    elseif l:fge && !l:bge
-      exec "hi ".a:group." guifg=NONE guibg=#".a:bg." ctermfg=NONE ctermbg=".l:ctermbg
+    let l:cmd = "hi ".a:group.
+    \ " guifg=".s:prefix_highlight_value_with("#", a:fg).
+    \ " guibg=".s:prefix_highlight_value_with("#", a:bg)
+    if !s:true_color
+      let l:cmd = l:cmd.
+      \ " ctermfg=".s:rgb(a:fg).
+      \ " ctermbg=".s:rgb(a:bg)
     endif
   endif
 
-  if empty(a:attr)
-    let l:attr = "none"
-  else
-    let l:attr = a:attr
-  endif
+  let l:attr = s:prefix_highlight_value_with("", a:attr)
 
   if exists("g:jellybeans_use_term_italics") && g:jellybeans_use_term_italics
     let l:cterm_attr = l:attr
   else
-    let l:cterm_attr = join(filter(split(l:attr, ","), "v:val !=? 'italic'"), ",")
-    if empty(l:cterm_attr)
-      let l:cterm_attr = "none"
-    endif
+    let l:cterm_attr = s:remove_italic_attr(l:attr)
   endif
 
-  exec "hi ".a:group." gui=".l:attr." cterm=".l:cterm_attr
+  if !exists("g:jellybeans_use_gui_italics") || g:jellybeans_use_gui_italics
+    let l:gui_attr = l:attr
+  else
+    let l:gui_attr = s:remove_italic_attr(l:attr)
+  endif
+
+  let l:cmd = l:cmd." gui=".l:gui_attr." cterm=".l:cterm_attr
+  exec l:cmd
 endfun
 " }}}
 
 call s:X("Normal","e8e8d3",s:background_color,"","White","")
 set background=dark
 
-if version >= 700
-  call s:X("CursorLine","","1c1c1c","","",s:termBlack)
-  call s:X("CursorColumn","","1c1c1c","","",s:termBlack)
-  call s:X("MatchParen","ffffff","556779","bold","","DarkCyan")
+call s:X("CursorLine","","1c1c1c","","",s:termBlack)
+call s:X("CursorColumn","","1c1c1c","","",s:termBlack)
 
-  call s:X("TabLine","000000","b0b8c0","italic","",s:termBlack)
-  call s:X("TabLineFill","9098a0","","","",s:termBlack)
-  call s:X("TabLineSel","000000","f0f0f0","italic,bold",s:termBlack,"White")
-
-  " Auto-completion
-  call s:X("Pmenu","ffffff","606060","","White",s:termBlack)
-  call s:X("PmenuSel","101010","eeeeee","",s:termBlack,"White")
+" Some of Terminal.app's default themes have a cursor color
+" too close to Jellybeans' preferred MatchParen background
+" color to be easily distinguishable. Other terminals tend
+" to use a brighter cursor color.
+"
+" Use a more distinct color in Terminal.app, and also in
+" low-color terminals if the preferred background color is
+" not available.
+if !has('gui_running') && $TERM_PROGRAM == "Apple_Terminal"
+    let s:matchParenGuiFg = "dd0093"
+    let s:matchParenGuiBg = "000000"
+else
+    let s:matchParenGuiFg = "ffffff"
+    let s:matchParenGuiBg = "556779"
 endif
+if s:termBlack != "Black"
+    let s:matchParenTermFg = "Magenta"
+    let s:matchParenTermBg = ""
+else
+    let s:matchParenTermFg = ""
+    let s:matchParenTermBg = s:termBlack
+endif
+call s:X("MatchParen",s:matchParenGuiFg,s:matchParenGuiBg,"bold",
+\                     s:matchParenTermFg,s:matchParenTermBg)
+
+call s:X("TabLine","000000","b0b8c0","italic","",s:termBlack)
+call s:X("TabLineFill","9098a0","","","",s:termBlack)
+call s:X("TabLineSel","000000","f0f0f0","italic,bold",s:termBlack,"White")
+
+" Auto-completion
+call s:X("Pmenu","ffffff","606060","","White",s:termBlack)
+call s:X("PmenuSel","101010","eeeeee","",s:termBlack,"White")
 
 call s:X("Visual","","404040","","",s:termBlack)
 call s:X("Cursor",s:background_color,"b0d0f0","","","")
 
-call s:X("LineNr","BBBBBB",s:background_color,"none",s:termBlack,"")
-call s:X("CursorLineNr","ccc5c4","","none","White","")
-call s:X("Comment","888888","","","Grey","")
-call s:X("Todo","FF4040","","bold","White",s:termBlack)
+call s:X("LineNr","605958",s:background_color,"NONE",s:termBlack,"")
+call s:X("CursorLineNr","ccc5c4","","NONE","White","")
+call s:X("Comment","888888","","italic","Grey","")
+call s:X("Todo","c7c7c7","","bold","White",s:termBlack)
 
 call s:X("StatusLine","000000","dddddd","italic","","White")
 call s:X("StatusLineNC","ffffff","403c41","italic","White","Black")
@@ -416,6 +489,7 @@ call s:X("Statement","8197bf","","","DarkBlue","")
 call s:X("PreProc","8fbfdc","","","LightBlue","")
 
 hi! link Operator Structure
+hi! link Conceal Operator
 
 call s:X("Type","ffb964","","","Yellow","")
 call s:X("NonText","606060",s:background_color,"",s:termBlack,"")
@@ -589,7 +663,7 @@ if !s:low_color
   hi IndentGuidesEven ctermbg=234
 endif
 
-if exists("g:jellybeans_overrides")
+if !empty("s:overrides")
   fun! s:current_attr(group)
     let l:synid = synIDtrans(hlID(a:group))
     let l:attrs = []
@@ -636,7 +710,7 @@ if exists("g:jellybeans_overrides")
       unlet l:def
     endfor
   endfun
-  call s:load_colors(g:jellybeans_overrides)
+  call s:load_colors(s:overrides)
   delf s:load_colors
   delf s:load_color_def
   delf s:current_color
@@ -645,7 +719,10 @@ endif
 
 " delete functions {{{
 delf s:X
+delf s:remove_italic_attr
+delf s:prefix_highlight_value_with
 delf s:rgb
+delf s:is_empty_or_none
 delf s:color
 delf s:rgb_color
 delf s:rgb_level
