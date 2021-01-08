@@ -34,32 +34,44 @@ call plug#begin(expand('~/.vim/plugged'))
 "*****************************************************************************
 "" Plug install packages
 "*****************************************************************************
-" ディレクトリツリー表示でファイル操作
+" ディレクトリツリー表示でファイル操作(F3)
 Plug 'scrooloose/nerdtree'
 Plug 'jistr/vim-nerdtree-tabs'
+
 " gcc でコメントアウト/解除
 Plug 'tpope/vim-commentary'
+
 " git コマンド
 Plug 'tpope/vim-fugitive'
+
 " ステータスバー強化
 Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
+
 " git 差分表示時の ~-+記号を行番号の左側に表示
 Plug 'airblade/vim-gitgutter'
+
 " 外部 grep ツール
 Plug 'vim-scripts/grep.vim'
+
 " GVim のみのカラーテーマを使用可能にする
 Plug 'vim-scripts/CSApprox'
+
 " 閉じカッコ自動補完
 Plug 'Raimondi/delimitMate'
+
 " 現在位置の関数名表示
 Plug 'majutsushi/tagbar'
+
 " ソースコードの Linter 兼 Formatter
 Plug 'dense-analysis/ale'
+
 " インデント可視化 
 Plug 'Yggdroot/indentLine'
-" 
+
+" Vim Bootstrap Updater
 Plug 'editor-bootstrap/vim-bootstrap-updater'
+
 " fugitive の :GBrowse コマンドで編集中ファイルを Github 表示する
 Plug 'tpope/vim-rhubarb' " required by fugitive to :Gbrowse
 
@@ -135,7 +147,7 @@ filetype plugin indent on
 "" Encoding
 set encoding=utf-8
 set fileencoding=utf-8
-set fileencodings=utf-8
+set fileencodings=utf-8,CP932
 set ttyfast
 
 "" Fix backspace indent
@@ -173,6 +185,16 @@ let g:session_autoload = "no"
 let g:session_autosave = "no"
 let g:session_command_aliases = 1
 
+" バックアップファイルを作らない
+set nobackup
+" スワップファイルを作らない
+set noswapfile
+" undoファイルを作らない
+set noundofile
+
+" 行末の1文字先までカーソルを移動できるように
+set virtualedit=onemore
+
 "*****************************************************************************
 "" Visual Settings
 "*****************************************************************************
@@ -182,6 +204,7 @@ set number
 
 let no_buffers_menu=1
 "colorscheme dracula
+colorscheme jellybeans
 
 
 set mousemodel=popup
@@ -200,10 +223,10 @@ else
   " IndentLine
   let g:indentLine_enabled = 1
   let g:indentLine_concealcursor = 0
-  let g:indentLine_char = '┆'
+  "let g:indentLine_char = '┆'
+  let g:indentLine_char = '|'       " なぜか┆では表示されない
   let g:indentLine_faster = 1
 
-  
   if $COLORTERM == 'gnome-terminal'
     set term=gnome-256color
   else
@@ -256,6 +279,16 @@ let g:airline#extensions#tabline#enabled = 1
 let g:airline#extensions#tagbar#enabled = 1
 let g:airline_skip_empty_sections = 1
 
+" 不可視文字を表示
+set list
+set listchars=tab:»-,trail:-,eol:↲,extends:»,precedes:«,nbsp:%
+
+" カーソル行強調
+set cursorline
+
+" 入力中のコマンドをステータスに表示する
+set showcmd
+
 "*****************************************************************************
 "" Abbreviations
 "*****************************************************************************
@@ -278,7 +311,8 @@ let g:NERDTreeSortOrder=['^__\.py$', '\/$', '*', '\.swp$', '\.bak$', '\~$']
 let g:NERDTreeShowBookmarks=1
 let g:nerdtree_tabs_focus_on_files=1
 let g:NERDTreeMapOpenInTabSilent = '<RightMouse>'
-let g:NERDTreeWinSize = 50
+"let g:NERDTreeWinSize = 50
+let g:NERDTreeWinSize = 40
 set wildignore+=*/tmp/*,*.so,*.swp,*.zip,*.pyc,*.db,*.sqlite
 nnoremap <silent> <F2> :NERDTreeFind<CR>
 nnoremap <silent> <F3> :NERDTreeToggle<CR>
@@ -466,6 +500,13 @@ vnoremap K :m '<-2<CR>gv=gv
 "" Open current line on GitHub
 nnoremap <Leader>o :.Gbrowse<CR>
 
+" jk で ノーマルモードへ移行
+inoremap jk <ESC>
+
+" 折り返し時に表示行単位での移動できるようにする
+nnoremap j gj
+nnoremap k gk
+
 "*****************************************************************************
 "" Custom configs
 "*****************************************************************************
@@ -569,14 +610,3 @@ else
   let g:airline_symbols.readonly = ''
   let g:airline_symbols.linenr = ''
 endif
-
-
-" ここまでが Vim Bootstrap のコード
-" ======================================
-" ここからは自分で追加したコード
-
-" カラーテーマ
-colorscheme jellybeans
-
-" jk で ノーマルモードへ移行＋IMEをOFF
-inoremap jk <ESC>
