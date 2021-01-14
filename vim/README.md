@@ -6,15 +6,15 @@ vim用の設定
 - Ubuntu 20.04 LTS (on WSL2)
 
 ## 使用方法
-1. `.vimrc` と `.vim` ディレクトリをホームへ配置。
+1. `.vimrc` をホームへ配置。
     - `init.sh` を実行でも良い。
 2. vim を起動。
+3. `:PlugInstall` を実行。
 
 ## .vimrc 作成経緯
 1. [Vim Bootstrap](https://vim-bootstrap.com/) で雛形を作成する。
 2. `.vimrc` の末尾に追加の設定を入れる。
     - その他、一部コメントを入れたりした。
-3. [jellybeans](https://github.com/nanotech/jellybeans.vim) を入れたかったが、何故かプラグインで自動インストールできなかったので、`.vim/colors` に自分で配置。
 
 ## その他
 ### インサートモードを抜けるときに IME を OFF にする

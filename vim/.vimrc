@@ -77,7 +77,7 @@ Plug 'tpope/vim-rhubarb' " required by fugitive to :Gbrowse
 
 " カラーテーマ
 "Plug 'dracula/vim', { 'as': 'dracula' }
-
+Plug 'cocopon/iceberg.vim'
 
 if isdirectory('/usr/local/opt/fzf')
   Plug '/usr/local/opt/fzf' | Plug 'junegunn/fzf.vim'
@@ -207,8 +207,9 @@ set number
 
 let no_buffers_menu=1
 "colorscheme dracula
-colorscheme jellybeans
-
+"colorscheme jellybeans
+colorscheme iceberg
+set bg=dark
 
 set mousemodel=popup
 set t_Co=256
