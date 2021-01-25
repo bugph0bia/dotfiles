@@ -4,5 +4,6 @@
 一覧
 ----
 - [Vim](./vim)
+- [tig](./tig)
 - [VS Code](./vscode)
 - [サクラエディタ](./sakura-editor)

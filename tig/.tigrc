@@ -1,1 +1,7 @@
+# basic setting
 set line-graphics = ascii
+
+# color setting
+color cursor black blue
+color title-blur black blue
+color title-focus black blue

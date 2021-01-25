@@ -14,6 +14,8 @@ vim用の設定
 ## .tigrc 作成経緯
 - `set line-graphics = ascii`
     - main view (コミットツリー) の表示においてフォントによっては罫線がうまく表示されなかった。フォントを変えたくないので、utf-8 モードではなく ascii モードに設定する。
+- color setting
+    - Windows Terminal の初期設定だとカラーが見辛いケースがあったので対応（`ls` の結果など）。
 
 ## その他
 ### Windows のコマンドプロンプトで使用する場合
