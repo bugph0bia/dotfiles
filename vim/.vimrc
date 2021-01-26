@@ -45,8 +45,8 @@ Plug 'tpope/vim-commentary'
 Plug 'tpope/vim-fugitive'
 
 " ステータスバー強化
-Plug 'vim-airline/vim-airline'
-Plug 'vim-airline/vim-airline-themes'
+"Plug 'vim-airline/vim-airline'
+"Plug 'vim-airline/vim-airline-themes'
 
 " git 差分表示時の ~-+記号を行番号の左側に表示
 Plug 'airblade/vim-gitgutter'
@@ -206,10 +206,13 @@ set ruler
 set number
 
 let no_buffers_menu=1
+" 色設定
 "colorscheme dracula
 "colorscheme jellybeans
-colorscheme iceberg
 set bg=dark
+colorscheme iceberg
+" 微調整
+hi Whitespace ctermfg=238
 
 set mousemodel=popup
 set t_Co=256
