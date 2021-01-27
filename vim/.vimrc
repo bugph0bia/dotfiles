@@ -199,7 +199,7 @@ set virtualedit=onemore
 set nrformats=
 
 " ctags
-set tags=./tags;,./.tags;
+set tags=./tags;,./.tags;,tags;,.tags;
 
 "*****************************************************************************
 "" Visual Settings
