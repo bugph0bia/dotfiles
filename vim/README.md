@@ -13,8 +13,7 @@ vim用の設定
 
 ## .vimrc 作成経緯
 1. [Vim Bootstrap](https://vim-bootstrap.com/) で雛形を作成する。
-2. `.vimrc` の末尾に追加の設定を入れる。
-    - その他、一部コメントを入れたりした。
+2. これをベースに細かいカスタマイズを入れる。
 
 ## その他
 ### インサートモードを抜けるときに IME を OFF にする
@@ -23,4 +22,11 @@ Windows (WSL2) 上で使用する場合は、Windows 側の IME のプロパテ�
 
 ### CapsLock を Ctrl に割り当てる
 Windows (WSL2) 上で使用する場合は、[cap2ctrl](https://docs.microsoft.com/en-us/sysinternals/downloads/ctrl2cap) を使用することで解決。  
+
+### ctags
+別途 universal ctags をインストールしておく必要あり。  
+
+```
+sudo apt-get install universal-ctags
+```
 
