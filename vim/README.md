@@ -23,6 +23,9 @@ Windows (WSL2) 上で使用する場合は、Windows 側の IME のプロパテ�
 ### CapsLock を Ctrl に割り当てる
 Windows (WSL2) 上で使用する場合は、[cap2ctrl](https://docs.microsoft.com/en-us/sysinternals/downloads/ctrl2cap) を使用することで解決。  
 
+### 無変換/変換キーの割り当て
+使用している IME の設定で、無変換キーに「IME-OFF」、変換キーに「IME-ON」を割り当てると便利。  
+
 ### ctags
 別途 universal ctags をインストールしておく必要あり。  
 
