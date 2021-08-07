@@ -215,7 +215,8 @@ let no_buffers_menu=1
 set bg=dark
 colorscheme iceberg
 " 微調整
-hi Whitespace ctermfg=238
+hi Normal ctermbg=233
+hi LineNr ctermbg=234
 
 set mousemodel=popup
 set t_Co=256
