@@ -6,4 +6,5 @@
 - [Vim](./vim)
 - [tig](./tig)
 - [VS Code](./vscode)
+- [Windows Terminal](./windows_terminal)
 - [サクラエディタ](./sakura-editor)
