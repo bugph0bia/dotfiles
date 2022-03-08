@@ -67,3 +67,31 @@ VS Code 設定
 バックスラッシュのエスケープがうまく機能しないことがある。  
 Markdown、MathJax の順にレンダリングが行われるため、Markdownで先にエスケープ処理されてしまうため。Markdownで処理されなかった文字はMathJaxで処理される。  
 例えば、`\\` は `\\\\` と書かなければ MathJax で改行と見なされないが、`\sum` はそのまま処理される。
+
+#### Fontawesome によるアイコン表示対応
+1. コマンドパレットで拡張機能フォルダを開く（Extentions: Open Extensions Folder）
+2. `<拡張機能フォルダ>\yzane.markdown-pdf-x.x.x\template\template.html` を編集し、`</head>` の直前に下記コードを追加する。
+    ```html
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+
+
+    <!-- Fontawesome 対応-->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script type="text/javascript">
+        $(function(){
+            $('body').find(':contains(":fa")').not('code').each(function(){
+                var txt=$(this).text();
+                $(this).html(txt.replace(/:(fa-[\w-]+?):/g, '<i class="fa $1"></i>'));
+            });
+        });
+    </script>
+    ```
+
+後は、 Markdown ファイル内で、絵文字と同じようにFontawesome のコードを書くとアイコンに変換される（例： `:fa-user:` ）。  
+
+注意点:  
+- jQuery を使用している。
+- CDN を利用しているのでインターネット接続が必要。
+- コロンに囲まれたコードはまず markdown-pdf によって絵文字として判定される。そこで漏れたものはそのままの文字列で残されるので、上記コードによって Fontawesome 変換される。
+    - 絵文字とコードがかぶると問題だが、Fontawesome は必ず fa から始まるので問題ないはず。
