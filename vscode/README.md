@@ -81,8 +81,8 @@ Markdown、MathJax の順にレンダリングが行われるため、Markdown�
     <script type="text/javascript">
         $(function(){
             $('body').find(':contains(":fa")').not('code').each(function(){
-                var txt=$(this).text();
-                $(this).html(txt.replace(/:(fa-[\w-]+?):/g, '<i class="fa $1"></i>'));
+                var htmlText = $(this).html();
+                $(this).html(htmlText.replace(/:(fa-[\w-]+?):/g, '<i class="fa $1"></i>'));
             });
         });
     </script>
