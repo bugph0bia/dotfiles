@@ -545,6 +545,8 @@ nnoremap k gk
 autocmd FileType c setlocal tabstop=4 shiftwidth=4 expandtab
 autocmd FileType cpp setlocal tabstop=4 shiftwidth=4 expandtab
 
+" go
+autocmd FileType go setlocal tabstop=4 shiftwidth=4 noexpandtab
 
 " html
 " for html files, 2 spaces
