@@ -34,12 +34,12 @@ call plug#begin(expand('~/.vim/plugged'))
 "*****************************************************************************
 "" Plug install packages
 "*****************************************************************************
-" ディレクトリツリー表示でファイル操作(F3)
+" ディレクトリツリー表示でファイル操作(F2,F3)
 Plug 'scrooloose/nerdtree'
 Plug 'jistr/vim-nerdtree-tabs'
 
 " gcc でコメントアウト/解除
-Plug 'tpope/vim-commentary'
+"Plug 'tpope/vim-commentary'
 
 " git コマンド
 Plug 'tpope/vim-fugitive'
@@ -52,19 +52,19 @@ Plug 'vim-airline/vim-airline-themes'
 Plug 'airblade/vim-gitgutter'
 
 " 外部 grep ツール
-Plug 'vim-scripts/grep.vim'
+"Plug 'vim-scripts/grep.vim'
 
 " GVim のみのカラーテーマを使用可能にする
-Plug 'vim-scripts/CSApprox'
+"Plug 'vim-scripts/CSApprox'
 
 " 閉じカッコ自動補完
-Plug 'Raimondi/delimitMate'
+"Plug 'Raimondi/delimitMate'
 
 " 現在位置の関数名表示
 Plug 'majutsushi/tagbar'
 
 " ソースコードの Linter 兼 Formatter
-Plug 'dense-analysis/ale'
+"Plug 'dense-analysis/ale'
 
 " インデント可視化 
 Plug 'Yggdroot/indentLine'
@@ -73,7 +73,7 @@ Plug 'Yggdroot/indentLine'
 Plug 'editor-bootstrap/vim-bootstrap-updater'
 
 " fugitive の :GBrowse コマンドで編集中ファイルを Github 表示する
-Plug 'tpope/vim-rhubarb' " required by fugitive to :Gbrowse
+"Plug 'tpope/vim-rhubarb' " required by fugitive to :Gbrowse
 
 " カラーテーマ
 "Plug 'dracula/vim', { 'as': 'dracula' }
@@ -96,8 +96,8 @@ Plug 'xolox/vim-misc'
 Plug 'xolox/vim-session'
 
 "" Snippets
-Plug 'SirVer/ultisnips'
-Plug 'honza/vim-snippets'
+"Plug 'SirVer/ultisnips'
+"Plug 'honza/vim-snippets'
 
 "*****************************************************************************
 "" Custom bundles
@@ -107,13 +107,16 @@ Plug 'honza/vim-snippets'
 Plug 'vim-scripts/c.vim', {'for': ['c', 'cpp']}
 Plug 'ludwig/split-manpage.vim'
 
+" go
+Plug 'prabirshrestha/vim-lsp'
+Plug 'mattn/vim-lsp-settings'
 
 " html
 "" HTML Bundle
-Plug 'hail2u/vim-css3-syntax'
-Plug 'gko/vim-coloresque'
-Plug 'tpope/vim-haml'
-Plug 'mattn/emmet-vim'
+"Plug 'hail2u/vim-css3-syntax'
+"Plug 'gko/vim-coloresque'
+"Plug 'tpope/vim-haml'
+"Plug 'mattn/emmet-vim'
 
 
 " javascript
@@ -546,11 +549,29 @@ autocmd FileType c setlocal tabstop=4 shiftwidth=4 expandtab
 autocmd FileType cpp setlocal tabstop=4 shiftwidth=4 expandtab
 
 " go
+function! s:on_lsp_buffer_enabled() abort
+  setlocal omnifunc=lsp#complete
+  setlocal signcolumn=yes
+  if exists('+tagfunc') | setlocal tagfunc=lsp#tagfunc | endif
+  nmap <buffer> gd <plug>(lsp-definition)
+  nmap <buffer> gr <plug>(lsp-references)
+  nmap <buffer> gi <plug>(lsp-implementation)
+  nmap <buffer> gt <plug>(lsp-type-definition)
+  nmap <buffer> <leader>rn <plug>(lsp-rename)
+  nmap <buffer> [g <Plug>(lsp-previous-diagnostic)
+  nmap <buffer> ]g <Plug>(lsp-next-diagnostic)
+  nmap <buffer> K <plug>(lsp-hover)
+endfunction
+
+augroup lsp_install
+    au!
+    autocmd User lsp_buffer_enabled call s:on_lsp_buffer_enabled()
+augroup END
 autocmd FileType go setlocal tabstop=4 shiftwidth=4 noexpandtab
 
 " html
 " for html files, 2 spaces
-autocmd Filetype html setlocal ts=2 sw=2 expandtab
+"autocmd Filetype html setlocal ts=2 sw=2 expandtab
 
 
 " javascript
